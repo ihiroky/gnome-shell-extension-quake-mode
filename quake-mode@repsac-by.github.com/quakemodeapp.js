@@ -19,6 +19,7 @@ export var QuakeModeApp = class {
    */
   constructor(app_id) {
     this.isTransition = false;
+    this._transitionTimer = null;
     this.state = state.INITIAL;
 
     /** @type {import('@girs/meta-13').Meta.Window?} */
@@ -53,7 +54,17 @@ export var QuakeModeApp = class {
   }
 
   destroy() {
+    // `destroy()` is reachable from several places (window unmanaged, a failed
+    // toggle, the extension being disabled), so it must be safe to call twice:
+    // disposing the settings a second time logs a critical.
+    if (this.state === state.DEAD) return;
+
     this.state = state.DEAD;
+
+    if (this._transitionTimer) {
+      GLib.source_remove(this._transitionTimer);
+      this._transitionTimer = null;
+    }
 
     if (this.settings) {
       this.settings.run_dispose();
@@ -166,7 +177,7 @@ export var QuakeModeApp = class {
       const timer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 5000, () => {
         sig.off();
         reject(new Error(`launch '${app.id}' timeout`));
-        return true;
+        return GLib.SOURCE_REMOVE;
       });
 
       const sig = once(app, "windows-changed", () => {
@@ -189,25 +200,92 @@ export var QuakeModeApp = class {
   first_place() {
     const { win, child } = this;
 
-    if (!win || !child) return;
+    if (!win) return;
+
+    // Without an actor there is nothing to animate; still mark the app as
+    // running so later toggles are not ignored.
+    if (!child) {
+      this.state = state.RUNNING;
+      return;
+    }
 
     child.set_clip(0, 0, child.width, 0);
     win.stick();
 
-    on(global.window_manager, "map", (sig, wm, metaWindowChild) => {
-      if (metaWindowChild !== child) return;
+    const reveal = () => {
+      if (this.state !== state.STARTING) return;
 
-      sig.off();
-      wm.emit("kill-window-effects", child);
+      this.state = state.RUNNING;
+      child.remove_clip();
+      this.show();
+    };
 
-      once(win, "size-changed", () => {
-        this.state = state.RUNNING;
-        child.remove_clip();
-        this.show();
+    // Drop the default map effect and wait until the window has been moved and
+    // resized to its final geometry before revealing it.
+    const settle = () => {
+      global.window_manager.emit("kill-window-effects", child);
+
+      // 'size-changed' may never fire if `place()` happens to leave the
+      // window at its current size, so never wait forever for it.
+      const timeout = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 500, () => {
+        sizeChanged.off();
+        reveal();
+        return GLib.SOURCE_REMOVE;
+      });
+
+      const sizeChanged = once(win, "size-changed", () => {
+        GLib.source_remove(timeout);
+        reveal();
       });
 
       this.place();
+    };
+
+    // The window is often already mapped by the time it shows up in
+    // 'windows-changed'; in that case the 'map' signal has already been
+    // emitted and waiting for it would leave the app stuck in STARTING.
+    if (child.is_mapped?.()) {
+      settle();
+      return;
+    }
+
+    on(global.window_manager, "map", (sig, _wm, metaWindowChild) => {
+      if (metaWindowChild !== child) return;
+
+      sig.off();
+      settle();
     });
+  }
+
+  /**
+   * Latches the animation flag and clears it again after `duration`, so a
+   * transition that never completes (the window can be destroyed mid animation)
+   * cannot make every later toggle a no-op.
+   *
+   * @param {number} duration
+   */
+  _startTransition(duration) {
+    this._endTransition();
+
+    this.isTransition = true;
+    this._transitionTimer = GLib.timeout_add(
+      GLib.PRIORITY_DEFAULT,
+      Math.round(duration) + 500,
+      () => {
+        this._transitionTimer = null;
+        this.isTransition = false;
+        return GLib.SOURCE_REMOVE;
+      },
+    );
+  }
+
+  _endTransition() {
+    if (this._transitionTimer) {
+      GLib.source_remove(this._transitionTimer);
+      this._transitionTimer = null;
+    }
+
+    this.isTransition = false;
   }
 
   show() {
@@ -222,7 +300,7 @@ export var QuakeModeApp = class {
     const parent = child.get_parent();
     if (!parent) return;
 
-    this.isTransition = true;
+    this._startTransition(this.ainmation_time);
 
     parent.set_child_above_sibling(child, null);
     (child.translation_y = child.height * (valign === "top" ? -1 : 2)),
@@ -236,7 +314,7 @@ export var QuakeModeApp = class {
       duration: this.ainmation_time,
       mode: Clutter.AnimationMode.EASE_OUT_QUART,
       onComplete: () => {
-        this.isTransition = false;
+        this._endTransition();
         if (focusout)
           once(global.display, "notify::focus-window", () => this.hide());
       },
@@ -254,7 +332,7 @@ export var QuakeModeApp = class {
 
     if (this.isTransition) return;
 
-    this.isTransition = true;
+    this._startTransition(this.ainmation_time);
 
     //@ts-expect-error
     child.ease({
@@ -266,7 +344,7 @@ export var QuakeModeApp = class {
         Main.wm.skipNextEffect(child);
         child.meta_window.minimize();
         child.translation_y = 0;
-        this.isTransition = false;
+        this._endTransition();
       },
     });
   }
