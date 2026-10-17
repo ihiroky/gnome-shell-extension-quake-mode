@@ -17,7 +17,13 @@ const IndicatorName = "Quake-mode";
 
 const APPS_COUNT = 5;
 
-/** @type Map<number, InstanceType<typeof QuakeModeApp>> */
+/**
+ * One instance per application id, so a given application is never launched
+ * twice even when several accelerators point at it. The accelerator that shows
+ * the window decides which monitor it is placed on.
+ *
+ * @type Map<string, InstanceType<typeof QuakeModeApp>>
+ */
 const apps = new Map();
 
 const injectionManager = new InjectionManager();
@@ -69,11 +75,36 @@ export default class QuakeModeExtension extends Extension {
         () => this._toggle(i),
       );
     }
+
+    this._monitors = this._settings.get_child("monitors");
+    this._monitorChangedId = this._monitors.connect(
+      "changed",
+      (_settings, key) => this._updateMonitor(key),
+    );
+    this._defaultMonitorChangedId = this._settings.connect(
+      "changed::quake-mode-monitor",
+      () => this._updateMonitor(null),
+    );
   }
 
   disable() {
     for (let i = 1; i <= APPS_COUNT; i++) {
       Main.wm.removeKeybinding(`quake-mode-accelerator-${i}`);
+    }
+
+    if (this._monitors && this._monitorChangedId) {
+      this._monitors.disconnect(this._monitorChangedId);
+      this._monitorChangedId = undefined;
+    }
+
+    if (this._settings && this._defaultMonitorChangedId) {
+      this._settings.disconnect(this._defaultMonitorChangedId);
+      this._defaultMonitorChangedId = undefined;
+    }
+
+    if (this._monitors) {
+      this._monitors.run_dispose();
+      this._monitors = undefined;
     }
 
     if (indicator) {
@@ -105,17 +136,49 @@ export default class QuakeModeExtension extends Extension {
   }
 
   /**
+   * Monitor to use for accelerator `i`: the per-accelerator override, or the
+   * global default when the override is left at -1.
+   *
+   * @param {number} i
+   * @returns {number}
+   */
+  _slot_monitor(i) {
+    if (!this._settings || !this._monitors)
+      throw new Error("The settings base are not defined");
+    const monitor = this._monitors.get_int(`monitor-${i}`);
+    return monitor < 0 ? this._settings.get_int("quake-mode-monitor") : monitor;
+  }
+
+  /**
+   * Re-places windows that are currently shown on the monitor whose setting
+   * changed. `key` is `null` when the global default changed.
+   *
+   * @param {string | null} key
+   */
+  _updateMonitor(key) {
+    for (let i = 1; i <= APPS_COUNT; i++) {
+      if (key !== null && key !== `monitor-${i}`) continue;
+
+      const monitor = this._slot_monitor(i);
+      apps.forEach((app) => {
+        if (app.slot === i) app.updateMonitor(monitor);
+      });
+    }
+  }
+
+  /**
    * @param {number} i
    */
   async _toggle(i) {
     try {
-      let app = apps.get(i);
+      const appId = this._app_id(i);
+      let app = apps.get(appId);
       if (!app || app.state === state.DEAD) {
-        app = new QuakeModeApp(this._app_id(i));
-        apps.set(i, app);
+        app = new QuakeModeApp(appId);
+        apps.set(appId, app);
       }
 
-      await app.toggle();
+      await app.toggle(this._slot_monitor(i), i);
     } catch (e) {
       Main.notify("Quake-mode", e instanceof Error ? e.message : String(e));
     }

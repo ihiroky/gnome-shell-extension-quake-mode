@@ -1,0 +1,10 @@
+{
+  "name": "quake-mode",
+  "description": "Drop-down mode for any application",
+  "uuid": "quake-mode@ihiroky.github.com",
+  "shell-version": ["45", "46", "47", "48", "49", "50"],
+  "version": 11,
+  "url": "https://github.com/ihiroky/gnome-shell-extension-quake-mode",
+  "settings-schema": "com.github.ihiroky.quake-mode",
+  "gettext-domain": "quake-mode@ihiroky.github.com"
+}

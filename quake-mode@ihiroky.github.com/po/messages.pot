@@ -17,90 +17,90 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: quake-mode@repsac-by.github.com/prefs.js:44
+#: quake-mode@ihiroky.github.com/prefs.js:44
 msgid "Icon"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:52
+#: quake-mode@ihiroky.github.com/prefs.js:52
 msgid "Minimize on focus out"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:60
+#: quake-mode@ihiroky.github.com/prefs.js:60
 msgid "Hide from Overview"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:68
+#: quake-mode@ihiroky.github.com/prefs.js:68
 msgid "Always on Top"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:78
+#: quake-mode@ihiroky.github.com/prefs.js:78
 msgid "Width - %"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:88
+#: quake-mode@ihiroky.github.com/prefs.js:88
 msgid "Height - %"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:95
+#: quake-mode@ihiroky.github.com/prefs.js:95
 msgid "Left"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:96
+#: quake-mode@ihiroky.github.com/prefs.js:96
 msgid "Right"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:97
+#: quake-mode@ihiroky.github.com/prefs.js:97
 msgid "Center"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:126
+#: quake-mode@ihiroky.github.com/prefs.js:126
 msgid "Horizontal align"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:134
+#: quake-mode@ihiroky.github.com/prefs.js:134
 msgid "Top"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:135
+#: quake-mode@ihiroky.github.com/prefs.js:135
 msgid "Bottom"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:164
+#: quake-mode@ihiroky.github.com/prefs.js:164
 msgid "Vertical align"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:210
+#: quake-mode@ihiroky.github.com/prefs.js:210
 msgid "Monitor"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:220
+#: quake-mode@ihiroky.github.com/prefs.js:220
 msgid "Animation time - s"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:242
+#: quake-mode@ihiroky.github.com/prefs.js:242
 msgid "Toggle"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:254
+#: quake-mode@ihiroky.github.com/prefs.js:254
 msgid "Action"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:259
+#: quake-mode@ihiroky.github.com/prefs.js:259
 msgid "Shortcut Key"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:264
+#: quake-mode@ihiroky.github.com/prefs.js:264
 msgid "Application"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:355
+#: quake-mode@ihiroky.github.com/prefs.js:355
 msgid "Main"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/prefs.js:356
+#: quake-mode@ihiroky.github.com/prefs.js:356
 msgid "Accelerators"
 msgstr ""
 
-#: quake-mode@repsac-by.github.com/indicator.js:48
+#: quake-mode@ihiroky.github.com/indicator.js:48
 msgid "Settings"
 msgstr ""

@@ -2,18 +2,18 @@
 
 <schemalist>
 
-	<enum id="com.github.repsac-by.quake-mode.halignment">
+	<enum id="com.github.ihiroky.quake-mode.halignment">
 		<value nick="left" value="0" />
 		<value nick="right" value="1" />
 		<value nick="center" value="2" />
 	</enum>
 
-	<enum id="com.github.repsac-by.quake-mode.valignment">
+	<enum id="com.github.ihiroky.quake-mode.valignment">
 		<value nick="top" value="0" />
 		<value nick="bottom" value="1" />
 	</enum>
 
-  	<schema id="com.github.repsac-by.quake-mode.accelerators">
+  	<schema id="com.github.ihiroky.quake-mode.accelerators">
 		<key name="quake-mode-accelerator-1" type="as"><default>[]</default></key>
 		<key name="quake-mode-accelerator-2" type="as"><default>[]</default></key>
 		<key name="quake-mode-accelerator-3" type="as"><default>[]</default></key>
@@ -21,7 +21,7 @@
 		<key name="quake-mode-accelerator-5" type="as"><default>[]</default></key>
 	</schema>
 
-  	<schema id="com.github.repsac-by.quake-mode.apps">
+  	<schema id="com.github.ihiroky.quake-mode.apps">
 		<key name="app-1" type="s"><default>''</default></key>
 		<key name="app-2" type="s"><default>''</default></key>
 		<key name="app-3" type="s"><default>''</default></key>
@@ -29,8 +29,17 @@
 		<key name="app-5" type="s"><default>''</default></key>
 	</schema>
 
+  	<schema id="com.github.ihiroky.quake-mode.monitors">
+		<!-- -1 means: inherit the global 'quake-mode-monitor' default. -->
+		<key name="monitor-1" type="i"><range min="-1" max="20"/><default>-1</default></key>
+		<key name="monitor-2" type="i"><range min="-1" max="20"/><default>-1</default></key>
+		<key name="monitor-3" type="i"><range min="-1" max="20"/><default>-1</default></key>
+		<key name="monitor-4" type="i"><range min="-1" max="20"/><default>-1</default></key>
+		<key name="monitor-5" type="i"><range min="-1" max="20"/><default>-1</default></key>
+	</schema>
 
-	<schema id="com.github.repsac-by.quake-mode" path="/com/github/repsac-by/quake-mode/">
+
+	<schema id="com.github.ihiroky.quake-mode" path="/com/github/ihiroky/quake-mode/">
 
 		<key name="quake-mode-app" type="s">
 			<default>''</default>
@@ -81,16 +90,17 @@
 			<default>false</default>
 		</key>
 
-		<key name="quake-mode-halign" enum="com.github.repsac-by.quake-mode.halignment">
+		<key name="quake-mode-halign" enum="com.github.ihiroky.quake-mode.halignment">
 			<default>'center'</default>
 		</key>
 
-		<key name="quake-mode-valign" enum="com.github.repsac-by.quake-mode.valignment">
+		<key name="quake-mode-valign" enum="com.github.ihiroky.quake-mode.valignment">
 			<default>'top'</default>
 		</key>
 
-		<child name="accelerators" schema="com.github.repsac-by.quake-mode.accelerators"/>
-		<child name="apps" schema="com.github.repsac-by.quake-mode.apps"/>
+		<child name="accelerators" schema="com.github.ihiroky.quake-mode.accelerators"/>
+		<child name="apps" schema="com.github.ihiroky.quake-mode.apps"/>
+		<child name="monitors" schema="com.github.ihiroky.quake-mode.monitors"/>
   </schema>
 
 </schemalist>
