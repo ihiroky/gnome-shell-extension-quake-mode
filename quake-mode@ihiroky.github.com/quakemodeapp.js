@@ -161,6 +161,11 @@ export var QuakeModeApp = class {
    * @param {number} slot
    */
   toggle(monitor = 0, slot = 0) {
+    // Capture the accelerator that owned the window before this call updates
+    // it, so a different accelerator of a shared app can re-target the window
+    // instead of hiding it.
+    const previousSlot = this._slot;
+
     // Remember where to show the window and which accelerator asked for it, so
     // a later reveal can target the monitor of whichever key was pressed.
     this._monitor = monitor;
@@ -178,7 +183,19 @@ export var QuakeModeApp = class {
 
     if (this.state !== state.RUNNING || !win) return;
 
-    if (win.has_focus()) return this.hide();
+    if (win.has_focus()) {
+      // A different accelerator now owns the window: a single app may be
+      // shared by several accelerators, each bound to its own monitor. Move the
+      // window onto the pressed accelerator's monitor (already stored in
+      // `_monitor` above) instead of hiding it.
+      if (slot !== previousSlot) {
+        this.place();
+        Main.activateWindow(win);
+        return;
+      }
+
+      return this.hide();
+    }
 
     if (win.is_hidden()) return this.show();
 
