@@ -22,6 +22,16 @@ export var QuakeModeApp = class {
     this._transitionTimer = null;
     this.state = state.INITIAL;
 
+    // Monitor the window is currently shown on. It is supplied by the
+    // accelerator that triggered the last show, not read from settings, so a
+    // single window can be shared by several accelerators with different
+    // monitors.
+    this._monitor = 0;
+
+    // Accelerator slot that last showed this window (used to react to monitor
+    // setting changes).
+    this._slot = 0;
+
     /** @type {import('@girs/meta-13').Meta.Window?} */
     this.win = null;
 
@@ -47,7 +57,6 @@ export var QuakeModeApp = class {
     settings.connect("changed::quake-mode-gap", place);
     settings.connect("changed::quake-mode-halign", place);
     settings.connect("changed::quake-mode-valign", place);
-    settings.connect("changed::quake-mode-monitor", place);
     settings.connect("changed::quake-mode-always-on-top", setupAlwaysOnTop);
 
     this.state = state.READY;
@@ -77,7 +86,7 @@ export var QuakeModeApp = class {
   get child() {
     if (!this.win) return null;
 
-    /** @type {import('@girs/meta-13').Meta.WindowChild} */
+    /** @type {import('@girs/meta-13').Meta.WindowActor} */
     //@ts-expect-error Incorrect return type? TODO: investigate
     const child = this.win.get_compositor_private();
 
@@ -130,13 +139,15 @@ export var QuakeModeApp = class {
     return this.settings.get_string("quake-mode-valign");
   }
 
-  get monitor() {
-    const { win, settings } = this;
+  get slot() {
+    return this._slot;
+  }
 
-    const monitor = settings.get_int("quake-mode-monitor");
-
-    if (!win) return monitor;
-
+  /**
+   * @param {number} monitor
+   * @returns {number}
+   */
+  _clampMonitor(monitor) {
     if (monitor < 0) return 0;
 
     const max = global.display.get_n_monitors() - 1;
@@ -145,7 +156,21 @@ export var QuakeModeApp = class {
     return monitor;
   }
 
-  toggle() {
+  /**
+   * @param {number} monitor
+   * @param {number} slot
+   */
+  toggle(monitor = 0, slot = 0) {
+    // Capture the accelerator that owned the window before this call updates
+    // it, so a different accelerator of a shared app can re-target the window
+    // instead of hiding it.
+    const previousSlot = this._slot;
+
+    // Remember where to show the window and which accelerator asked for it, so
+    // a later reveal can target the monitor of whichever key was pressed.
+    this._monitor = monitor;
+    this._slot = slot;
+
     const { win } = this;
 
     if (this.state === state.READY)
@@ -158,11 +183,43 @@ export var QuakeModeApp = class {
 
     if (this.state !== state.RUNNING || !win) return;
 
-    if (win.has_focus()) return this.hide();
+    if (win.has_focus()) {
+      // A different accelerator now owns the window: a single app may be
+      // shared by several accelerators, each bound to its own monitor. Move the
+      // window onto the pressed accelerator's monitor (already stored in
+      // `_monitor` above) instead of hiding it.
+      if (slot !== previousSlot) {
+        this.place();
+        Main.activateWindow(win);
+        return;
+      }
+
+      return this.hide();
+    }
 
     if (win.is_hidden()) return this.show();
 
+    // Visible but not focused: move it onto the pressed accelerator's monitor
+    // and bring it to the front (without replaying the reveal animation).
+    this.place();
     Main.activateWindow(win);
+  }
+
+  /**
+   * Re-targets a window that is currently shown, used when the monitor setting
+   * of the accelerator that showed it changes.
+   *
+   * @param {number} monitor
+   */
+  updateMonitor(monitor) {
+    this._monitor = monitor;
+
+    if (this.state !== state.RUNNING) return;
+
+    const { win } = this;
+    if (!win || win.is_hidden()) return;
+
+    this.place();
   }
 
   launch() {
@@ -350,11 +407,12 @@ export var QuakeModeApp = class {
   }
 
   place() {
-    const { win, width, height, gap, halign, valign, monitor } = this;
+    const { win, width, height, gap, halign, valign } = this;
 
     if (!win) return;
 
-    const area = win.get_work_area_for_monitor(monitor),
+    const monitor = this._clampMonitor(this._monitor),
+      area = win.get_work_area_for_monitor(monitor),
       w = Math.round((width * area.width) / 100),
       h = Math.round((height * area.height) / 100),
       x =

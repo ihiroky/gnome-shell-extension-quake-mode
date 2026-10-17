@@ -294,21 +294,61 @@ const AcceleratorsWidget = GObject.registerClass(
         );
       const settings = extensionObject.getSettings();
 
-      const Columns = { action: 0, accel: 1, app_id: 2, i: 3 };
+      const Columns = { action: 0, accel: 1, app_id: 2, i: 3, monitor: 4 };
+
+      const monitors = settings.get_child("monitors");
+
+      // Choices for the per-accelerator monitor: a "Default" entry that inherits
+      // the global setting, followed by every connected monitor.
+      const monitorStore = new Gtk.ListStore();
+      monitorStore.set_column_types([GObject.TYPE_STRING, GObject.TYPE_INT]);
+      /** @type {Map<number, string>} */
+      const monitorLabels = new Map();
+
+      /**
+       * @param {string} label
+       * @param {number} value
+       */
+      const addMonitorChoice = (label, value) => {
+        monitorLabels.set(value, label);
+        monitorStore.set(monitorStore.append(), [0, 1], [label, value]);
+      };
+
+      addMonitorChoice(_("Default"), -1);
+
+      for (const [idx, monitor] of getMonitors().entries()) {
+        addMonitorChoice(
+          `#${idx}: ${monitor.manufacturer || ""} ${monitor.model}`,
+          idx,
+        );
+      }
+
+      /**
+       * @param {number} value
+       * @returns {string}
+       */
+      const monitorLabel = (value) => monitorLabels.get(value) ?? `#${value}`;
 
       const model = (this.model = Gtk.ListStore.new([
         GObject.TYPE_STRING,
         GObject.TYPE_STRING,
         GObject.TYPE_STRING,
         GObject.TYPE_INT,
+        GObject.TYPE_STRING,
       ]));
 
       /** @type {(row: [any, string, number]) => void}} */
       function add_row([accelerator, app_id, i]) {
         model.set(
           model.append(),
-          [0, 1, 2, 3],
-          [_("Toggle"), accelerator, app_id, i],
+          [0, 1, 2, 3, 4],
+          [
+            _("Toggle"),
+            accelerator,
+            app_id,
+            i,
+            monitorLabel(monitors.get_int(`monitor-${i}`)),
+          ],
         );
       }
 
@@ -343,6 +383,17 @@ const AcceleratorsWidget = GObject.registerClass(
         }),
         renderer: new Gtk.CellRendererText({ editable: true }),
       };
+
+      const monitorColumn = new Gtk.TreeViewColumn({
+        title: _("Monitor"),
+        min_width: 120,
+      });
+      const monitorRenderer = new Gtk.CellRendererCombo({
+        editable: true,
+        model: monitorStore,
+        text_column: 0,
+      });
+      monitorColumn.pack_start(monitorRenderer, true);
 
       actions.column.pack_start(actions.renderer, true);
       accels.column.pack_start(accels.renderer, true);
@@ -380,9 +431,18 @@ const AcceleratorsWidget = GObject.registerClass(
         },
       );
 
+      monitorColumn.set_cell_data_func(
+        monitorRenderer,
+        (column, cell, model, iter) => {
+          //@ts-expect-error
+          cell.text = model.get_value(iter, Columns.monitor);
+        },
+      );
+
       this.append_column(actions.column);
       this.append_column(accels.column);
       this.append_column(apps.column);
+      this.append_column(monitorColumn);
 
       accels.renderer.connect(
         "accel-edited",
@@ -445,6 +505,20 @@ const AcceleratorsWidget = GObject.registerClass(
         });
 
         dialog.show();
+      });
+
+      monitorRenderer.connect("changed", (renderer, path, new_iter) => {
+        const [ok, iter] = model.get_iter(Gtk.TreePath.new_from_string(path));
+        if (!ok) return;
+
+        const value = /** @type {number} */ (
+          monitorStore.get_value(new_iter, 1)
+        );
+        model.set_value(iter, Columns.monitor, monitorLabel(value));
+
+        const i = /** @type {number} */ (model.get_value(iter, Columns.i));
+        if (value < 0) monitors.reset(`monitor-${i}`);
+        else monitors.set_int(`monitor-${i}`, value);
       });
     }
   },

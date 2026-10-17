@@ -9,13 +9,13 @@
 ## Installation
 
 ```bash
-git clone https://github.com/repsac-by/gnome-shell-extension-quake-mode.git
+git clone https://github.com/ihiroky/gnome-shell-extension-quake-mode.git
 
 cd gnome-shell-extension-quake-mode
 
-gnome-extensions pack quake-mode@repsac-by.github.com --extra-source={quakemodeapp,indicator,util}.js
+gnome-extensions pack quake-mode@ihiroky.github.com --extra-source={quakemodeapp,indicator,util}.js
 
-gnome-extensions install quake-mode@repsac-by.github.com.shell-extension.zip
+gnome-extensions install quake-mode@ihiroky.github.com.shell-extension.zip
 ```
 
 ## Usage

@@ -39,6 +39,18 @@ export var Indicator = class {
     this.panelButton.destroy();
   }
 
+  /**
+   * Effective monitor of the first accelerator (the one the tray toggles).
+   *
+   * @returns {number}
+   */
+  get monitor() {
+    const override = this.settings.get_child("monitors").get_int("monitor-1");
+    return override < 0
+      ? this.settings.get_int("quake-mode-monitor")
+      : override;
+  }
+
   getSettingsItem() {
     const settingsItem = new PopupMenu.PopupMenuItem(_("Settings"));
     settingsItem.connect("activate", () => {
@@ -68,19 +80,22 @@ export var Indicator = class {
     menu.removeAll();
 
     const monitors = getMonitors();
+    const current = this.monitor;
 
     for (const [idx, monitor] of monitors.entries()) {
       const menuItem = new PopupMenu.PopupMenuItem(
         `#${idx}: ${monitor.manufacturer || ""} ${monitor.model}`,
       );
 
-      if (idx === this.settings.get_int("quake-mode-monitor")) {
+      if (idx === current) {
         menuItem.setOrnament(PopupMenu.Ornament.CHECK);
       } else {
         menuItem.setOrnament(PopupMenu.Ornament.NONE);
       }
       menuItem.connect("activate", () => {
-        this.settings.set_int("quake-mode-monitor", idx);
+        // The tray toggles the first accelerator, so its monitor menu edits
+        // that accelerator's monitor.
+        this.settings.get_child("monitors").set_int("monitor-1", idx);
       });
       menu.addMenuItem(menuItem);
     }

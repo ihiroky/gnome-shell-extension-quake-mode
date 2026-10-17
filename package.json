@@ -5,10 +5,10 @@
   "description": "It's a GNOME Shell extension adds support quake-mode for any application",
   "main": "extension.js",
   "scripts": {
-    "check": "eslint quake-mode@repsac-by.github.com && tsc && prettier -c .",
+    "check": "eslint quake-mode@ihiroky.github.com && tsc && prettier -c .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "repsac-by",
+  "author": "ihiroky",
   "license": "MIT",
   "devDependencies": {
     "@girs/gio-2.0": "^2.78.0-3.2.6",
