@@ -13,10 +13,31 @@ git clone https://github.com/ihiroky/gnome-shell-extension-quake-mode.git
 
 cd gnome-shell-extension-quake-mode
 
-gnome-extensions pack quake-mode@ihiroky.github.com --extra-source={quakemodeapp,indicator,util}.js
+pack_args=(
+  quake-mode@ihiroky.github.com
+  --extra-source=quakemodeapp.js
+  --extra-source=indicator.js
+  --extra-source=util.js
+)
+
+if command -v msgfmt >/dev/null 2>&1; then
+  gnome-extensions pack "${pack_args[@]}"
+else
+  echo "msgfmt not found; packaging without translations."
+  empty_po_dir="$(mktemp -d)"
+  if gnome-extensions pack "${pack_args[@]}" --podir="$empty_po_dir"; then
+    rmdir "$empty_po_dir"
+  else
+    pack_status=$?
+    rmdir "$empty_po_dir"
+    exit "$pack_status"
+  fi
+fi
 
 gnome-extensions install quake-mode@ihiroky.github.com.shell-extension.zip
 ```
+
+When `msgfmt` is unavailable, translations are omitted and the extension uses the original source strings.
 
 ## Usage
 
