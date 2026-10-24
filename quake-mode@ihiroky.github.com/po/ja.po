@@ -1,0 +1,110 @@
+# Japanese translations for quake-mode.
+# This file is distributed under the same license as the quake-mode package.
+msgid ""
+msgstr ""
+"Project-Id-Version: quake-mode\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-10-24 20:44+0300\n"
+"PO-Revision-Date: 2026-10-24 00:00+0900\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: quake-mode@ihiroky.github.com/prefs.js:54
+msgid "Icon"
+msgstr "アイコン"
+
+#: quake-mode@ihiroky.github.com/prefs.js:67
+msgid "Minimize on focus out"
+msgstr "フォーカスを失ったときに最小化"
+
+#: quake-mode@ihiroky.github.com/prefs.js:80
+msgid "Hide from Overview"
+msgstr "アクティビティ画面から隠す"
+
+#: quake-mode@ihiroky.github.com/prefs.js:93
+msgid "Always on Top"
+msgstr "常に最前面に表示"
+
+#: quake-mode@ihiroky.github.com/prefs.js:108
+msgid "Width - %"
+msgstr "幅（%）"
+
+#: quake-mode@ihiroky.github.com/prefs.js:123
+msgid "Height - %"
+msgstr "高さ（%）"
+
+#: quake-mode@ihiroky.github.com/prefs.js:141
+msgid "Gap"
+msgstr "画面端との間隔"
+
+#: quake-mode@ihiroky.github.com/prefs.js:150
+msgid "Left"
+msgstr "左"
+
+#: quake-mode@ihiroky.github.com/prefs.js:151
+msgid "Right"
+msgstr "右"
+
+#: quake-mode@ihiroky.github.com/prefs.js:152
+msgid "Center"
+msgstr "中央"
+
+#: quake-mode@ihiroky.github.com/prefs.js:180
+msgid "Horizontal align"
+msgstr "水平方向の配置"
+
+#: quake-mode@ihiroky.github.com/prefs.js:188
+msgid "Top"
+msgstr "上"
+
+#: quake-mode@ihiroky.github.com/prefs.js:189
+msgid "Bottom"
+msgstr "下"
+
+#: quake-mode@ihiroky.github.com/prefs.js:217
+msgid "Vertical align"
+msgstr "垂直方向の配置"
+
+#: quake-mode@ihiroky.github.com/prefs.js:264
+msgid "Monitor"
+msgstr "モニター"
+
+#: quake-mode@ihiroky.github.com/prefs.js:279
+msgid "Animation time - s"
+msgstr "アニメーション時間（秒）"
+
+#: quake-mode@ihiroky.github.com/prefs.js:317
+msgid "Default"
+msgstr "デフォルト"
+
+#: quake-mode@ihiroky.github.com/prefs.js:346
+msgid "Toggle"
+msgstr "切り替え"
+
+#: quake-mode@ihiroky.github.com/prefs.js:367
+msgid "Action"
+msgstr "操作"
+
+#: quake-mode@ihiroky.github.com/prefs.js:373
+msgid "Shortcut Key"
+msgstr "ショートカットキー"
+
+#: quake-mode@ihiroky.github.com/prefs.js:381
+msgid "Application"
+msgstr "アプリケーション"
+
+#: quake-mode@ihiroky.github.com/prefs.js:534
+msgid "Main"
+msgstr "基本"
+
+#: quake-mode@ihiroky.github.com/prefs.js:538
+msgid "Accelerators"
+msgstr "ショートカット"
+
+#: quake-mode@ihiroky.github.com/indicator.js:55
+msgid "Settings"
+msgstr "設定"
